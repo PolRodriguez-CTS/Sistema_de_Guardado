@@ -30,6 +30,19 @@ public class VolumeSlider : MonoBehaviour
 
         _audioMixer.SetFloat(_volumeParameter, Mathf.Log10(volume) * 20);
         _volumeSlider.value = volume;
+
+        string mutedValue = PlayerPrefs.GetString(_volumeParameter + "Mute", "False");
+
+        if (mutedValue == "False")
+        {
+            muted = false;
+        }
+        else if (mutedValue == "True")
+        {
+            muted = true;
+        }
+
+        _muteToggle.isOn = !muted;
     }
 
     //el valor es el float que pilla el slider, como tal llamado value en el inspector del slider
@@ -37,6 +50,7 @@ public class VolumeSlider : MonoBehaviour
     {
         //en lugar de poner el parametro del value a secas, lo metemos en el mathf.log10 para que el cambio de volumen sea más progresivo y no tan exponencial o logarítmico
         _audioMixer.SetFloat(_volumeParameter, Mathf.Log10(value) * 20);
+        _muteToggle.isOn = true;
     }
 
     /* ---------------------------------------------------------------------------------------------------------------------------------------- */
@@ -54,6 +68,7 @@ public class VolumeSlider : MonoBehaviour
     void OnDisable()
     {
         PlayerPrefs.SetFloat(_volumeParameter, _volumeSlider.value);
+        PlayerPrefs.SetString(_volumeParameter + "Mute", muted.ToString());
     }
 
     void Mute(bool soundEnable)
@@ -62,13 +77,13 @@ public class VolumeSlider : MonoBehaviour
         if (soundEnable)
         {
             float lastVolume = PlayerPrefs.GetFloat(_volumeParameter, 1f);
-            _audioMixer.SetFloat(_volumeParameter, lastVolume);
+            _audioMixer.SetFloat(_volumeParameter, Mathf.Log10(lastVolume) * 20);
             muted = false;
         }
         else
         {
             PlayerPrefs.SetFloat(_volumeParameter, _volumeSlider.value);
-            _audioMixer.SetFloat(_volumeParameter, _volumeSlider.minValue);
+            _audioMixer.SetFloat(_volumeParameter, Mathf.Log10(_volumeSlider.minValue) * 20);
             muted = true;
         }
     }
